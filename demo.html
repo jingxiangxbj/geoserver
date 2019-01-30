@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="ol.css" charset="utf-8"  type="text/css">
+  <style>   
+    .map {
+        height: 768;
+        width: 330;
+      }
+    </style>
+  <script src="ol.js"  type="text/javascript" charset="utf-8"></script>
+  
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <div id="map" class="map">
+  </div>
+    <div id="content" >&nbsp;</div>
+  <script type="text/javascript"> 
+    var content = document.getElementById('content');
+    var osmLayer = new ol.layer.Tile({
+      source: new ol.source.OSM()
+    });
+
+    var wmsLayer = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: 'http://localhost:9999/geoserver/karl/wms',
+        params: {
+          'LAYERS': 'karl:points',//可以是单个图层名称，也可以是图层组名称，或多个图层名称，中间用“，”隔开
+          'TILED': false,
+        },
+        serverType: 'geoserver'    //服务器类型
+      })
+    });
+	 //构造图层实例
+    var layers = [osmLayer, wmsLayer];  
+	//为底图
+    var view = new ol.View({   
+      extent: [115,39,116,40],
+     //初始化地图显示参数
+      projection: 'EPSG:4326',
+      center: [116.5, 40],
+      zoom: 10
+    });
+
+
+                  //OpenStreetMap提供的切片数据作
+    //构造地图实例
+    var map = new ol.Map({
+      layers: layers,           //图层属性
+      target: 'map',           //地图容器dom
+      view: view,
+    });
+ 
+      map.on('singleclick', function(evt) {
+       content.innerHTML = '';
+        var viewResolution = /** @type {number} */ (view.getResolution());    
+		 var url = wmsLayer.getSource().getGetFeatureInfoUrl(
+          evt.coordinate, viewResolution, 'EPSG:4326',
+          {'INFO_FORMAT': 'text/html'});
+        if (url) {
+         content.innerHTML =
+              '<iframe seamless src="' + url + '"></iframe>';
+        }
+      });
+
+      map.on('pointermove', function(evt) {
+        if (evt.dragging) {
+          return;
+        }
+        var pixel = map.getEventPixel(evt.originalEvent);
+        var hit = map.forEachLayerAtPixel(pixel, function() {
+          return true;
+        });
+        map.getTargetElement().style.cursor = hit ? 'pointer' : ''; 
+		 });
+
+  </script>
+
+</body>
+
+</html>
+
+

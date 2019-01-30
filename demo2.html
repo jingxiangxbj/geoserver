@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html >
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <link rel="stylesheet" href="ol.css" type="text/css">
+   <script src="ol.js" charset="utf-8" type="text/javascript"></script>
+   
+    <script type="text/javascript">
+        window.onload = function () {
+            var openStreetMapLayer = new ol.layer.Tile({
+                //使用XYZ的方式加载瓦片图
+                source: new ol.source.XYZ({
+                    //OpenStreetMap的瓦片URL
+                    url: 'http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                })
+            });
+            var map = new ol.Map({
+                layers: [openStreetMapLayer],
+                view: new ol.View({
+                    center: [106.51, 29.55],
+                    projection: 'EPSG:4326',
+                    zoom: 10
+                }),
+                target: 'map'
+            });
+        };
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+
+</html>
